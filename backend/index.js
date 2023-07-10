@@ -5,7 +5,7 @@ const dotenv = require('dotenv').config();
 const Stripe = require('stripe');
 
 const app = express();
-app.use(dotenv());
+//app.use(dotenv());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
