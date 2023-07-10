@@ -1,22 +1,22 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv").config();
-const Stripe = require("stripe");
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
+const Stripe = require('stripe');
 
 const app = express();
-//app.use(dotenv());
+app.use(dotenv());
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: '10mb' }));
 
 const PORT = process.env.PORT || 8080;
 
 //mongodb connection
 
-mongoose.set("strictQuery", false);
+mongoose.set('strictQuery', false);
 mongoose
   .connect(process.env.MONGODB_URL)
-  .then(() => console.log("Connect to Database"))
+  .then(() => console.log('Connect to Database'))
   .catch((err) => console.log(err));
 
 //schema
@@ -33,26 +33,26 @@ const userSchema = mongoose.Schema({
 });
 
 //
-const userModel = mongoose.model("user", userSchema);
+const userModel = mongoose.model('user', userSchema);
 
 //api
-app.get("/", (req, res) => {
-  res.send("Server is running");
+app.get('/', (req, res) => {
+  res.send('Server is running');
 });
 
 //signup
-app.post("/signup", async (req, res) => {
+app.post('/signup', async (req, res) => {
   const { email } = req.body;
 
   try {
     const result = await userModel.findOne({ email: email });
 
     if (result) {
-      res.send({ message: "Email id is already registered", alert: false });
+      res.send({ message: 'Email id is already registered', alert: false });
     } else {
       const data = new userModel(req.body);
       const savedData = await data.save();
-      res.send({ message: "Successfully signed up", alert: true });
+      res.send({ message: 'Successfully signed up', alert: true });
     }
   } catch (error) {
     console.log(error);
@@ -60,7 +60,7 @@ app.post("/signup", async (req, res) => {
 });
 
 //api login
-app.post("/login", async (req, res) => {
+app.post('/login', async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -75,10 +75,10 @@ app.post("/login", async (req, res) => {
         image: result.image,
       };
 
-      res.send({ message: "Login is successful", alert: true, data: dataSend });
+      res.send({ message: 'Login is successful', alert: true, data: dataSend });
     } else {
       res.send({
-        message: "Email is not available, please sign up",
+        message: 'Email is not available, please sign up',
         alert: false,
       });
     }
@@ -96,19 +96,19 @@ const schemaProduct = mongoose.Schema({
   price: String,
   description: String,
 });
-const productModel = mongoose.model("product", schemaProduct);
+const productModel = mongoose.model('product', schemaProduct);
 
 //save product in data
 //api
 
-app.post("/uploadProduct", async (req, res) => {
+app.post('/uploadProduct', async (req, res) => {
   const data = await productModel(req.body);
   const datasave = await data.save();
-  res.send({ message: "Upload successfully" });
+  res.send({ message: 'Upload successfully' });
 });
 
 //
-app.get("/product", async (req, res) => {
+app.get('/product', async (req, res) => {
   const data = await productModel.find({});
   res.send(JSON.stringify(data));
 });
@@ -117,18 +117,18 @@ app.get("/product", async (req, res) => {
 
 const stripe = new Stripe(process.env.STRIPE_SECURITY_KEY);
 
-app.post("/checkout-payment", async (req, res) => {
+app.post('/checkout-payment', async (req, res) => {
   try {
     const params = {
-      submit_type: "pay",
-      mode: "payment",
-      payment_method_types: ["card"],
-      billing_address_collection: "auto",
-      shipping_options: [{ shipping_rate: "shr_1NNMd0CVZBaZltKmfli88ZDw" }],
+      submit_type: 'pay',
+      mode: 'payment',
+      payment_method_types: ['card'],
+      billing_address_collection: 'auto',
+      shipping_options: [{ shipping_rate: 'shr_1NNMd0CVZBaZltKmfli88ZDw' }],
       line_items: req.body.map((item) => {
         return {
           price_data: {
-            currency: "usd",
+            currency: 'usd',
             product_data: {
               name: item.name,
               //images: [item.image],
@@ -156,4 +156,4 @@ app.post("/checkout-payment", async (req, res) => {
 });
 
 //server is ruuning
-app.listen(PORT, () => console.log("server is running at port : " + PORT));
+app.listen(PORT, () => console.log('server is running at port : ' + PORT));
